@@ -151,31 +151,13 @@ app.get("/user/list", function (request, response) {
  */
 app.get("/user/:id", function (request, response) {
   const id = request.params.id;
-
-  User.findById(id)
-    .then(user => {
-      if (!user) {
-        console.log("User with _id:" + id + " not found.");
-        return response.status(400).send("User not found");
-      }
-
-      // Convert to plain JS object
-      const cleanUser = JSON.parse(JSON.stringify(user));
-
-      // Return only required fields
-      response.status(200).json({
-        _id: cleanUser._id,
-        first_name: cleanUser.first_name,
-        last_name: cleanUser.last_name,
-        location: cleanUser.location,
-        description: cleanUser.description,
-        occupation: cleanUser.occupation
-      });
-    })
-    .catch(err => {
-      console.log("Invalid user id:", err);
-      response.status(400).send("Invalid user ID");
-    });
+  const user = models.userModel(id);
+  if (user === null) {
+    console.log("User with _id:" + id + " not found.");
+    response.status(400).send("Not found");
+    return;
+  }
+  response.status(200).send(user);
 });
 
 /**
